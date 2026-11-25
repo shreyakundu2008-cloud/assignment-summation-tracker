@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="University Assignment Submission and Academic Progress Tracker">
+  <title>Apex Global University - Assignment & Submission Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       Top Header Navigation (Universal)
+       ========================================================================= -->
+  <header class="uni-header">
+    <div class="container header-inner">
+      <!-- University Brand -->
+      <div class="brand-section">
+        <div class="brand-logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Apex Global University</h1>
+          <p>Academic Assessment & Submission System • 2026-27</p>
+        </div>
+      </div>
+
+      <!-- Navigation for Logged-In User (Hidden by default when logged out) -->
+      <nav id="navBar" class="header-nav hidden" aria-label="Main Navigation">
+        <button id="navDashboardBtn" class="nav-link-btn active" onclick="switchMainTab('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </button>
+        <button id="navAssignmentsBtn" class="nav-link-btn" onclick="switchMainTab('assignments')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Assignments
+        </button>
+        <!-- Teacher Specific Tab -->
+        <button id="navStudentsBtn" class="nav-link-btn hidden" onclick="switchMainTab('students')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Student Progress
+        </button>
+      </nav>
+
+      <!-- Right Action Controls -->
+      <div class="header-actions">
+        <!-- Theme Toggle (Light / Dark) -->
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle Theme" aria-label="Toggle Color Theme" onclick="toggleTheme()">
+          <svg id="themeIconSun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg id="themeIconMoon" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <!-- Notification Bell (Logged-In) -->
+        <div id="notifWrapper" class="hidden" style="position: relative;">
+          <button id="notifBellBtn" class="icon-btn" title="Notifications" aria-label="View Notifications" onclick="toggleNotifDropdown()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span id="notifCountBadge" class="notif-badge hidden">0</span>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div id="notifDropdown" class="notif-dropdown hidden">
+            <div class="notif-header">
+              <h4>System Alerts & Deadlines</h4>
+              <button class="btn btn-sm btn-outline" style="padding: 2px 6px; font-size: 0.7rem;" onclick="clearAllNotifications()">Clear</button>
+            </div>
+            <ul id="notifList" class="notif-list">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- User Profile Pill (Logged-In) -->
+        <div id="userProfilePill" class="user-profile-badge hidden">
+          <div id="userAvatar" class="user-avatar">U</div>
+          <div class="user-meta">
+            <span id="userName" class="user-name">User Name</span>
+            <span id="userRoleTag" class="user-role-tag">Student</span>
+          </div>
+          <button class="btn-logout" title="Sign Out" onclick="handleLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       SECTION 1: AUTHENTICATION (Login & Sign Up Screen)
+       ========================================================================= -->
+  <section id="authSection" class="auth-wrapper">
+    <div class="auth-container">
+      
+      <!-- Top Banner -->
+      <div class="auth-header-banner">
+        <div class="auth-crest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h2>University Institutional Portal</h2>
+        <p id="authSubtitle">Select your role to access your institutional workspace</p>
+      </div>
+
+      <!-- Role Selection Tabs (Student vs Faculty Portal) -->
+      <div class="role-tabs">
+        <button id="roleTabStudent" class="role-tab-btn active" onclick="selectAuthRole('student')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Student Portal
+        </button>
+        <button id="roleTabTeacher" class="role-tab-btn" onclick="selectAuthRole('teacher')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Faculty / Teacher Portal
+        </button>
+      </div>
+
+      <!-- Auth Body -->
+      <div class="auth-card-body">
+        
+        <!-- Mode Switch: Sign In vs Sign Up -->
+        <div class="auth-mode-switch">
+          <button id="modeTabSignIn" class="mode-tab-btn active" onclick="switchAuthMode('signin')">Sign In</button>
+          <button id="modeTabSignUp" class="mode-tab-btn" onclick="switchAuthMode('signup')">Sign Up (Register)</button>
+        </div>
+
+        <!-- Alert Notification Box -->
+        <div id="authAlert" class="auth-alert hidden"></div>
+
+        <!-- SIGN IN FORM -->
+        <form id="signInForm" class="auth-form" onsubmit="processSignIn(event)">
+          <div class="form-group">
+            <label for="signinIdentifier" id="lblIdentifier">University Email or Roll Number</label>
+            <input type="text" id="signinIdentifier" required placeholder="Enter institutional ID or email" autocomplete="username">
+          </div>
+
+          <div class="form-group">
+            <label for="signinPassword">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="signinPassword" required placeholder="Enter your password" autocomplete="current-password">
+              <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('signinPassword')">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSignInSubmit" class="btn btn-primary btn-full">
+            Sign In to Student Portal
+          </button>
+        </form>
+
+        <!-- SIGN UP (REGISTRATION) FORM -->
+        <form id="signUpForm" class="auth-form hidden" onsubmit="processSignUp(event)">
+          <div class="form-group">
+            <label for="signupFullName">Full Legal Name</label>
+            <input type="text" id="signupFullName" required placeholder="e.g. Rahul Verma" minlength="3">
+          </div>
+
+          <div class="form-group">
+            <label for="signupEmail">University Email ID</label>
+            <input type="email" id="signupEmail" required placeholder="name@university.edu">
+          </div>
+
+          <!-- Role-Specific Fields (Student) -->
+          <div id="studentFieldsBlock" class="form-row">
+            <div class="form-group">
+              <label for="signupRollNo">Enrollment / Roll No.</label>
+              <input type="text" id="signupRollNo" placeholder="e.g. 2026BCSE042">
+            </div>
+            <div class="form-group">
+              <label for="signupSemester">Semester</label>
+              <select id="signupSemester">
+                <option value="1st Semester">1st Semester</option>
+                <option value="2nd Semester">2nd Semester</option>
+                <option value="3rd Semester">3rd Semester</option>
+                <option value="4th Semester">4th Semester</option>
+                <option value="5th Semester" selected>5th Semester</option>
+                <option value="6th Semester">6th Semester</option>
+                <option value="7th Semester">7th Semester</option>
+                <option value="8th Semester">8th Semester</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Role-Specific Fields (Teacher) -->
+          <div id="teacherFieldsBlock" class="form-row hidden">
+            <div class="form-group">
+              <label for="signupFacultyId">Faculty Employee ID</label>
+              <input type="text" id="signupFacultyId" placeholder="e.g. FAC-204">
+            </div>
+            <div class="form-group">
+              <label for="signupDesignation">Designation</label>
+              <input type="text" id="signupDesignation" placeholder="e.g. Assistant Professor">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupDepartment">Department / School</label>
+            <select id="signupDepartment">
+              <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Electronics & Communication">Electronics & Communication</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+              <option value="Management Studies">Management Studies</option>
+            </select>
+          </div>
+
+          <!-- Strict 8-character Minimum Password -->
+          <div class="form-group">
+            <label for="signupPassword">Create Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="signupPassword" minlength="8" required placeholder="Minimum 8 characters" oninput="checkPasswordRule(this.value)">
+              <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('signupPassword')">👁️</button>
+            </div>
+            <span id="passwordRuleHint" class="password-hint invalid">
+              <span>●</span> Must be at least 8 characters long
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirmPassword">Confirm Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="signupConfirmPassword" minlength="8" required placeholder="Re-enter password">
+              <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('signupConfirmPassword')">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSignUpSubmit" class="btn btn-success btn-full">
+            Complete Student Registration
+          </button>
+        </form>
+
+        <!-- Instant Quick Demo Login Box (For Testing & Viva Evaluation) -->
+        <div class="demo-accounts-box">
+          <p>⚡ One-Click Institutional Demo Accounts</p>
+          <div class="demo-buttons-grid">
+            <button class="btn btn-outline btn-sm" onclick="quickFillDemo('student')">
+              🎓 Demo Student
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="quickFillDemo('teacher')">
+              👨‍🏫 Demo Faculty
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 2: MAIN PORTAL VIEW (When Logged In)
+       ========================================================================= -->
+  <main id="portalSection" class="main-content hidden">
+    <div class="container">
+
+      <!-- Dynamic Welcome Banner -->
+      <section class="portal-banner">
+        <div>
+          <div class="portal-welcome">
+            <h2 id="bannerGreeting">Welcome back, User</h2>
+            <p id="bannerSubtext">Apex Global University Academic Submission Tracking Platform</p>
+          </div>
+          <div id="bannerBadges" class="portal-badges">
+            <span id="badgeAcademicYear" class="badge badge-primary">Session 2026-27</span>
+            <span id="badgeDepartment" class="badge badge-info">Dept: CSE</span>
+          </div>
+        </div>
+        
+        <!-- Teacher Quick Actions -->
+        <div id="teacherActionGroup" class="hidden flex gap-2">
+          <button class="btn btn-primary" onclick="openAddAssignmentModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            + Create Assignment
+          </button>
+          <button class="btn btn-outline" onclick="openAddCourseModal()">
+            + Add Course
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB A: DASHBOARD VIEW -->
+      <div id="tabDashboard">
+        <!-- 4 Metric Cards -->
+        <section class="metrics-grid">
+          <article class="metric-card">
+            <div class="metric-icon-wrap primary">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div class="metric-details">
+              <span id="metric1Label">Total Courses</span>
+              <h3 id="metric1Val">0</h3>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-icon-wrap warning">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="metric-details">
+              <span id="metric2Label">Pending Submissions</span>
+              <h3 id="metric2Val">0</h3>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-icon-wrap success">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="metric-details">
+              <span id="metric3Label">Completed / Graded</span>
+              <h3 id="metric3Val">0</h3>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-icon-wrap danger">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="metric-details">
+              <span id="metric4Label">Late / Overdue</span>
+              <h3 id="metric4Val">0</h3>
+            </div>
+          </article>
+        </section>
+
+        <!-- Urgent Attention Block (Deadlines / Pending Reviews) -->
+        <section class="controls-bar" style="border-left: 4px solid var(--primary);">
+          <div>
+            <h3 id="attentionHeading" style="font-size: 1.05rem; font-weight: 700;">Priority Overview</h3>
+            <p id="attentionSubtext" style="font-size: 0.82rem; color: var(--text-muted);">Current active deadlines and continuous evaluation progress.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="switchMainTab('assignments')">View All Assignments →</button>
+        </section>
+
+        <!-- Recent Active Assignments Grid (Max 3) -->
+        <div id="recentAssignmentsGrid" class="assignments-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- TAB B: ASSIGNMENTS & SUBMISSIONS HUB -->
+      <div id="tabAssignments" class="hidden">
+        <!-- Search, Filter & Sort Bar -->
+        <section class="controls-bar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search assignment title, course, or keyword..." oninput="handleFilterChange()">
+          </div>
+
+          <div class="filter-group">
+            <select id="filterCourse" onchange="handleFilterChange()">
+              <option value="all">All Courses</option>
+              <!-- Populated dynamically -->
+            </select>
+
+            <select id="filterStatus" onchange="handleFilterChange()">
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending Submission</option>
+              <option value="submitted">Submitted</option>
+              <option value="graded">Graded</option>
+              <option value="late">Late Submission</option>
+            </select>
+
+            <select id="sortOrder" onchange="handleFilterChange()">
+              <option value="deadlineAsc">Deadline: Earliest First</option>
+              <option value="deadlineDesc">Deadline: Latest First</option>
+              <option value="titleAsc">Title: A to Z</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Full Assignments Grid -->
+        <div id="allAssignmentsGrid" class="assignments-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- TAB C: TEACHER EXCLUSIVE - STUDENT ROSTER & ACADEMIC PROGRESS -->
+      <div id="tabStudents" class="hidden">
+        <section class="controls-bar">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">Student Academic Directory & Continuous Evaluation</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Inspect individual student submission compliance, on-time rates, and cumulative grades.</p>
+          </div>
+          <div class="search-input-wrap" style="max-width: 320px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchStudentInput" placeholder="Search student name or roll no..." oninput="renderStudentRoster()">
+          </div>
+        </section>
+
+        <!-- Students Table -->
+        <div class="table-responsive">
+          <table class="uni-table">
+            <thead>
+              <tr>
+                <th>Student / Enrollment No.</th>
+                <th>Department & Sem</th>
+                <th>Submissions (Done / Total)</th>
+                <th>On-Time Compliance</th>
+                <th>Late Flags</th>
+                <th>Avg. Score</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="studentRosterTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- 1. TEACHER: CREATE ASSIGNMENT MODAL -->
+  <div id="modalAddAssignment" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Create Course Assignment</h3>
+        <button class="icon-btn" onclick="closeModal('modalAddAssignment')">✕</button>
+      </div>
+      <form id="createAssignmentForm" onsubmit="handleCreateAssignment(event)">
+        <div class="modal-body flex flex-col gap-3">
+          <div class="form-group">
+            <label for="asgCourseSelect">Course / Subject</label>
+            <select id="asgCourseSelect" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="asgTitle">Assignment Title</label>
+            <input type="text" id="asgTitle" required placeholder="e.g. Lab Exercise 3: Responsive Layout">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="asgType">Category / Type</label>
+              <select id="asgType">
+                <option value="Lab Task">Lab Task</option>
+                <option value="Theory Assignment">Theory Assignment</option>
+                <option value="Continuous Assessment">Continuous Assessment</option>
+                <option value="Mini Project">Mini Project</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="asgMaxMarks">Maximum Marks</label>
+              <input type="number" id="asgMaxMarks" required min="1" max="100" value="20">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="asgDueDate">Submission Deadline (Date & Time)</label>
+            <input type="datetime-local" id="asgDueDate" required>
+          </div>
+
+          <div class="form-group">
+            <label for="asgDescription">Instructions & Guidelines</label>
+            <textarea id="asgDescription" rows="3" required placeholder="Enter instructions, requirements, deliverables..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="asgRefLink">Reference Material Link (Optional)</label>
+            <input type="url" id="asgRefLink" placeholder="https://example.com/spec.pdf">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modalAddAssignment')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Publish Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. TEACHER: CREATE COURSE MODAL -->
+  <div id="modalAddCourse" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Add Institutional Course</h3>
+        <button class="icon-btn" onclick="closeModal('modalAddCourse')">✕</button>
+      </div>
+      <form id="createCourseForm" onsubmit="handleCreateCourse(event)">
+        <div class="modal-body flex flex-col gap-3">
+          <div class="form-group">
+            <label for="crsCode">Course Code</label>
+            <input type="text" id="crsCode" required placeholder="e.g. CSE-305">
+          </div>
+          <div class="form-group">
+            <label for="crsTitle">Course Title</label>
+            <input type="text" id="crsTitle" required placeholder="e.g. Full Stack Web Development">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="crsDepartment">Department</label>
+              <input type="text" id="crsDepartment" required value="Computer Science & Engineering">
+            </div>
+            <div class="form-group">
+              <label for="crsColor">Theme Color</label>
+              <select id="crsColor">
+                <option value="#1e3a8a">Navy Blue</option>
+                <option value="#0d9488">Teal Green</option>
+                <option value="#7c3aed">Purple</option>
+                <option value="#b91c1c">Crimson</option>
+                <option value="#d97706">Amber</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modalAddCourse')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. STUDENT: SUBMIT WORK MODAL -->
+  <div id="modalSubmitWork" class="modal-overlay hidden">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="submitModalTitle">Submit Assignment</h3>
+          <p id="submitModalCourse" style="font-size: 0.8rem; color: var(--text-muted);"></p>
+        </div>
+        <button class="icon-btn" onclick="closeModal('modalSubmitWork')">✕</button>
+      </div>
+      <form id="studentSubmissionForm" onsubmit="handleStudentSubmission(event)">
+        <input type="hidden" id="submitAssignmentId">
+        <div class="modal-body flex flex-col gap-4">
+          
+          <!-- Instructions box -->
+          <div id="submitModalInstructions" style="background-color: var(--bg-subtle); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.85rem; border-left: 3px solid var(--primary);"></div>
+          
+          <!-- Submission Method Switch -->
+          <div class="flex gap-4">
+            <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+              <input type="radio" name="submissionMode" value="file" checked onchange="toggleSubmissionInputMode('file')"> 
+              Attach File (PDF, DOCX, ZIP, Code)
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+              <input type="radio" name="submissionMode" value="link" onchange="toggleSubmissionInputMode('link')"> 
+              Submit Project URL (GitHub, Drive, Live)
+            </label>
+          </div>
+
+          <!-- File Drop Zone Area -->
+          <div id="fileUploadContainer">
+            <div id="dropZone" class="dropzone" onclick="document.getElementById('fileInputElement').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <h4>Choose a file or drag & drop it here</h4>
+              <p>Supports PDF, DOCX, TXT, ZIP, PNG, HTML, JS up to 10 MB</p>
+              <input type="file" id="fileInputElement" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+            
+            <!-- File Attached Preview -->
+            <div id="attachedFileCard" class="file-preview-card hidden">
+              <div class="file-preview-meta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div>
+                  <strong id="attachedFileName" style="font-size: 0.85rem; display: block;">file.pdf</strong>
+                  <span id="attachedFileSize" style="font-size: 0.75rem; color: var(--text-muted);">0 KB</span>
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline" style="color: var(--danger);" onclick="removeAttachedFile()">Remove</button>
+            </div>
+          </div>
+
+          <!-- URL Input Container -->
+          <div id="linkUploadContainer" class="form-group hidden">
+            <label for="submissionUrl">Project / Repository Link</label>
+            <input type="url" id="submissionUrl" placeholder="https://github.com/username/project-repo">
+          </div>
+
+          <!-- Student Comments -->
+          <div class="form-group">
+            <label for="submissionRemarks">Student Remarks / Notes (Optional)</label>
+            <textarea id="submissionRemarks" rows="2" placeholder="Mention any extra instructions, test cases completed..."></textarea>
+          </div>
+
+          <div id="submissionLateWarning" class="auth-alert auth-alert-danger hidden">
+            ⚠️ <strong>Late Notice:</strong> The official deadline has elapsed. Submitting now will flag this as a Late Submission.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modalSubmitWork')">Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm & Submit Work</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. TEACHER: SUBMISSIONS DESK & GRADING MODAL -->
+  <div id="modalSubmissionsDesk" class="modal-overlay hidden">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="deskModalTitle">Course Submissions Review Desk</h3>
+          <p id="deskModalStats" style="font-size: 0.82rem; color: var(--text-muted);"></p>
+        </div>
+        <button class="icon-btn" onclick="closeModal('modalSubmissionsDesk')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive" style="margin-bottom: 0;">
+          <table class="uni-table">
+            <thead>
+              <tr>
+                <th>Student / Roll No.</th>
+                <th>Submission Time</th>
+                <th>Timeline Flag</th>
+                <th>Deliverable</th>
+                <th>Evaluation</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="submissionsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalSubmissionsDesk')">Close Desk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. TEACHER: EVALUATION / GRADING & DOCUMENT PREVIEW MODAL -->
+  <div id="modalEvaluateStudent" class="modal-overlay hidden">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="evalStudentName">Evaluate Student Submission</h3>
+          <p id="evalAssignmentMeta" style="font-size: 0.8rem; color: var(--text-muted);"></p>
+        </div>
+        <button class="icon-btn" onclick="closeModal('modalEvaluateStudent')">✕</button>
+      </div>
+      <form id="evaluationForm" onsubmit="handleSaveGrade(event)">
+        <input type="hidden" id="evalSubmissionId">
+        <div class="modal-body flex flex-col gap-4">
+          
+          <!-- Deliverable Inspection Box -->
+          <div style="background-color: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <div class="flex items-center justify-between" style="margin-bottom: 0.75rem;">
+              <h4 style="font-size: 0.9rem; font-weight: 600;">Submitted Deliverable</h4>
+              <div id="deliverableActionBtns" class="flex gap-2">
+                <!-- Download or External Link button dynamically generated here -->
+              </div>
+            </div>
+            
+            <div id="docPreviewContainer" class="doc-preview-viewport">
+              Preview loading...
+            </div>
+          </div>
+
+          <!-- Student's Note -->
+          <div id="studentRemarksBox" style="font-size: 0.85rem; color: var(--text-muted); background-color: var(--bg-card); padding: 0.5rem 0.75rem; border: 1px dashed var(--border); border-radius: var(--radius-sm);">
+            <strong>Student Notes:</strong> <span id="studentRemarksText">None provided.</span>
+          </div>
+
+          <!-- Grading Inputs -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="evalMarksObtained">Awarded Marks</label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="evalMarksObtained" required min="0" max="100" style="font-weight: 700; font-size: 1.1rem; width: 100px;">
+                <span id="evalMaxMarksLabel" style="font-weight: 600; color: var(--text-muted);">/ 20</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="evalReviewStatus">Assessment Status</label>
+              <select id="evalReviewStatus">
+                <option value="graded">Graded & Published</option>
+                <option value="pending">Needs Resubmission / Under Review</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="evalFeedback">Instructor Feedback / Remarks</label>
+            <textarea id="evalFeedback" rows="3" required placeholder="Constructive remarks on methodology, code quality, accuracy..."></textarea>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modalEvaluateStudent')">Cancel</button>
+          <button type="submit" class="btn btn-success">Publish Marks & Feedback</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. TEACHER: INDIVIDUAL STUDENT ACADEMIC REPORT CARD MODAL -->
+  <div id="modalStudentReport" class="modal-overlay hidden">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="reportStudentName">Student Academic Report Card</h3>
+          <p id="reportStudentMeta" style="font-size: 0.82rem; color: var(--text-muted);"></p>
+        </div>
+        <button class="icon-btn" onclick="closeModal('modalStudentReport')">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Progress Summary Header -->
+        <div class="metrics-grid" style="margin-bottom: 1.25rem;">
+          <div class="metric-card" style="padding: 0.75rem 1rem;">
+            <div class="metric-details">
+              <span>Overall Average</span>
+              <h3 id="reportAvgScore" style="font-size: 1.3rem;">0%</h3>
+            </div>
+          </div>
+          <div class="metric-card" style="padding: 0.75rem 1rem;">
+            <div class="metric-details">
+              <span>Submissions Made</span>
+              <h3 id="reportSubmittedRatio" style="font-size: 1.3rem;">0 / 0</h3>
+            </div>
+          </div>
+          <div class="metric-card" style="padding: 0.75rem 1rem;">
+            <div class="metric-details">
+              <span>On-Time Rate</span>
+              <h3 id="reportOnTimeRate" style="font-size: 1.3rem;">100%</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assignment History Table -->
+        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.65rem;">Assignment Evaluation Record</h4>
+        <div class="table-responsive">
+          <table class="uni-table">
+            <thead>
+              <tr>
+                <th>Assignment</th>
+                <th>Due Date</th>
+                <th>Submission Status</th>
+                <th>Marks</th>
+                <th>Faculty Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="studentReportHistoryBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalStudentReport')">Close Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Universal Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="uni-footer">
+    <div class="container">
+      <p>© 2026-2027 Apex Global University. Academic Integrity, Assessment & Submission Tracking System.</p>
+      <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">Compliant with Modern Web Standards: HTML5 • CSS3 • JavaScript • LocalStorage Multi-User Architecture</p>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
